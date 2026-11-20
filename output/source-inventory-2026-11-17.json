@@ -1,0 +1,641 @@
+{
+  "timestamp": "2026-11-17T20:50:49.375275+08:00",
+  "exclusions": [
+    ".angular",
+    ".git",
+    ".next",
+    ".tools",
+    "coverage",
+    "dist",
+    "generated",
+    "node_modules",
+    "output"
+  ],
+  "files": [
+    {
+      "path": ".editorconfig",
+      "bytes": 147,
+      "lines": 9
+    },
+    {
+      "path": ".env.example",
+      "bytes": 482,
+      "lines": 7
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 174,
+      "lines": 18
+    },
+    {
+      "path": ".node-version",
+      "bytes": 8,
+      "lines": 1
+    },
+    {
+      "path": "AGENTS.md",
+      "bytes": 2769,
+      "lines": 27
+    },
+    {
+      "path": "apps/admin/.editorconfig",
+      "bytes": 331,
+      "lines": 17
+    },
+    {
+      "path": "apps/admin/.gitignore",
+      "bytes": 666,
+      "lines": 44
+    },
+    {
+      "path": "apps/admin/.prettierrc",
+      "bytes": 173,
+      "lines": 12
+    },
+    {
+      "path": "apps/admin/.vscode/extensions.json",
+      "bytes": 134,
+      "lines": 4
+    },
+    {
+      "path": "apps/admin/.vscode/launch.json",
+      "bytes": 490,
+      "lines": 20
+    },
+    {
+      "path": "apps/admin/.vscode/tasks.json",
+      "bytes": 1020,
+      "lines": 42
+    },
+    {
+      "path": "apps/admin/angular.json",
+      "bytes": 2133,
+      "lines": 79
+    },
+    {
+      "path": "apps/admin/eslint.config.mjs",
+      "bytes": 452,
+      "lines": 14
+    },
+    {
+      "path": "apps/admin/package.json",
+      "bytes": 942,
+      "lines": 36
+    },
+    {
+      "path": "apps/admin/public/favicon.ico",
+      "bytes": 15086,
+      "lines": null
+    },
+    {
+      "path": "apps/admin/README.md",
+      "bytes": 261,
+      "lines": 4
+    },
+    {
+      "path": "apps/admin/src/app/app.config.ts",
+      "bytes": 322,
+      "lines": 10
+    },
+    {
+      "path": "apps/admin/src/app/app.html",
+      "bytes": 111,
+      "lines": 2
+    },
+    {
+      "path": "apps/admin/src/app/app.routes.ts",
+      "bytes": 80,
+      "lines": 3
+    },
+    {
+      "path": "apps/admin/src/app/app.scss",
+      "bytes": 0,
+      "lines": 0
+    },
+    {
+      "path": "apps/admin/src/app/app.spec.ts",
+      "bytes": 725,
+      "lines": 24
+    },
+    {
+      "path": "apps/admin/src/app/app.ts",
+      "bytes": 233,
+      "lines": 9
+    },
+    {
+      "path": "apps/admin/src/index.html",
+      "bytes": 304,
+      "lines": 13
+    },
+    {
+      "path": "apps/admin/src/main.ts",
+      "bytes": 228,
+      "lines": 6
+    },
+    {
+      "path": "apps/admin/src/styles.scss",
+      "bytes": 59,
+      "lines": 1
+    },
+    {
+      "path": "apps/admin/tsconfig.app.json",
+      "bytes": 412,
+      "lines": 14
+    },
+    {
+      "path": "apps/admin/tsconfig.json",
+      "bytes": 990,
+      "lines": 33
+    },
+    {
+      "path": "apps/admin/tsconfig.spec.json",
+      "bytes": 423,
+      "lines": 14
+    },
+    {
+      "path": "apps/api/.env.example",
+      "bytes": 434,
+      "lines": 6
+    },
+    {
+      "path": "apps/api/.gitattributes",
+      "bytes": 20,
+      "lines": 1
+    },
+    {
+      "path": "apps/api/.gitignore",
+      "bytes": 93,
+      "lines": 5
+    },
+    {
+      "path": "apps/api/.oxlintrc.json",
+      "bytes": 216,
+      "lines": 10
+    },
+    {
+      "path": "apps/api/.prettierrc",
+      "bytes": 56,
+      "lines": 4
+    },
+    {
+      "path": "apps/api/AGENTS.md",
+      "bytes": 361,
+      "lines": 3
+    },
+    {
+      "path": "apps/api/nest-cli.json",
+      "bytes": 179,
+      "lines": 8
+    },
+    {
+      "path": "apps/api/package.json",
+      "bytes": 1825,
+      "lines": 58
+    },
+    {
+      "path": "apps/api/prisma/migrations/20261108145225_catalog_foundation/migration.sql",
+      "bytes": 6256,
+      "lines": 165
+    },
+    {
+      "path": "apps/api/prisma/migrations/migration_lock.toml",
+      "bytes": 81,
+      "lines": 2
+    },
+    {
+      "path": "apps/api/prisma/README.md",
+      "bytes": 1287,
+      "lines": 9
+    },
+    {
+      "path": "apps/api/prisma/schema.prisma",
+      "bytes": 2736,
+      "lines": 79
+    },
+    {
+      "path": "apps/api/prisma.config.ts",
+      "bytes": 503,
+      "lines": 19
+    },
+    {
+      "path": "apps/api/README.md",
+      "bytes": 262,
+      "lines": 4
+    },
+    {
+      "path": "apps/api/scripts/check-database.mjs",
+      "bytes": 1305,
+      "lines": 39
+    },
+    {
+      "path": "apps/api/src/app.module.ts",
+      "bytes": 467,
+      "lines": 16
+    },
+    {
+      "path": "apps/api/src/health/health.controller.spec.ts",
+      "bytes": 919,
+      "lines": 27
+    },
+    {
+      "path": "apps/api/src/health/health.controller.ts",
+      "bytes": 621,
+      "lines": 19
+    },
+    {
+      "path": "apps/api/src/health/health.module.ts",
+      "bytes": 258,
+      "lines": 5
+    },
+    {
+      "path": "apps/api/src/main.ts",
+      "bytes": 859,
+      "lines": 24
+    },
+    {
+      "path": "apps/api/src/prisma/prisma.module.ts",
+      "bytes": 189,
+      "lines": 4
+    },
+    {
+      "path": "apps/api/src/prisma/prisma.service.spec.ts",
+      "bytes": 1672,
+      "lines": 52
+    },
+    {
+      "path": "apps/api/src/prisma/prisma.service.ts",
+      "bytes": 939,
+      "lines": 31
+    },
+    {
+      "path": "apps/api/test/health.e2e-spec.ts",
+      "bytes": 1095,
+      "lines": 31
+    },
+    {
+      "path": "apps/api/tsconfig.build.json",
+      "bytes": 178,
+      "lines": 8
+    },
+    {
+      "path": "apps/api/tsconfig.json",
+      "bytes": 624,
+      "lines": 23
+    },
+    {
+      "path": "apps/api/vitest.config.e2e.ts",
+      "bytes": 212,
+      "lines": 10
+    },
+    {
+      "path": "apps/api/vitest.config.ts",
+      "bytes": 361,
+      "lines": 12
+    },
+    {
+      "path": "apps/pos/.editorconfig",
+      "bytes": 331,
+      "lines": 17
+    },
+    {
+      "path": "apps/pos/.gitignore",
+      "bytes": 666,
+      "lines": 44
+    },
+    {
+      "path": "apps/pos/.prettierrc",
+      "bytes": 173,
+      "lines": 12
+    },
+    {
+      "path": "apps/pos/.vscode/extensions.json",
+      "bytes": 134,
+      "lines": 4
+    },
+    {
+      "path": "apps/pos/.vscode/launch.json",
+      "bytes": 490,
+      "lines": 20
+    },
+    {
+      "path": "apps/pos/.vscode/tasks.json",
+      "bytes": 1020,
+      "lines": 42
+    },
+    {
+      "path": "apps/pos/angular.json",
+      "bytes": 2127,
+      "lines": 79
+    },
+    {
+      "path": "apps/pos/eslint.config.mjs",
+      "bytes": 452,
+      "lines": 14
+    },
+    {
+      "path": "apps/pos/package.json",
+      "bytes": 940,
+      "lines": 36
+    },
+    {
+      "path": "apps/pos/public/favicon.ico",
+      "bytes": 15086,
+      "lines": null
+    },
+    {
+      "path": "apps/pos/README.md",
+      "bytes": 259,
+      "lines": 4
+    },
+    {
+      "path": "apps/pos/src/app/app.config.ts",
+      "bytes": 322,
+      "lines": 10
+    },
+    {
+      "path": "apps/pos/src/app/app.html",
+      "bytes": 109,
+      "lines": 2
+    },
+    {
+      "path": "apps/pos/src/app/app.routes.ts",
+      "bytes": 80,
+      "lines": 3
+    },
+    {
+      "path": "apps/pos/src/app/app.scss",
+      "bytes": 0,
+      "lines": 0
+    },
+    {
+      "path": "apps/pos/src/app/app.spec.ts",
+      "bytes": 723,
+      "lines": 24
+    },
+    {
+      "path": "apps/pos/src/app/app.ts",
+      "bytes": 233,
+      "lines": 9
+    },
+    {
+      "path": "apps/pos/src/index.html",
+      "bytes": 302,
+      "lines": 13
+    },
+    {
+      "path": "apps/pos/src/main.ts",
+      "bytes": 228,
+      "lines": 6
+    },
+    {
+      "path": "apps/pos/src/styles.scss",
+      "bytes": 59,
+      "lines": 1
+    },
+    {
+      "path": "apps/pos/tsconfig.app.json",
+      "bytes": 412,
+      "lines": 14
+    },
+    {
+      "path": "apps/pos/tsconfig.json",
+      "bytes": 990,
+      "lines": 33
+    },
+    {
+      "path": "apps/pos/tsconfig.spec.json",
+      "bytes": 423,
+      "lines": 14
+    },
+    {
+      "path": "apps/storefront/.env.example",
+      "bytes": 49,
+      "lines": 1
+    },
+    {
+      "path": "apps/storefront/.gitignore",
+      "bytes": 494,
+      "lines": 42
+    },
+    {
+      "path": "apps/storefront/AGENTS.md",
+      "bytes": 679,
+      "lines": 9
+    },
+    {
+      "path": "apps/storefront/eslint.config.mjs",
+      "bytes": 465,
+      "lines": 18
+    },
+    {
+      "path": "apps/storefront/next-env.d.ts",
+      "bytes": 288,
+      "lines": 7
+    },
+    {
+      "path": "apps/storefront/next.config.ts",
+      "bytes": 186,
+      "lines": 9
+    },
+    {
+      "path": "apps/storefront/package.json",
+      "bytes": 519,
+      "lines": 24
+    },
+    {
+      "path": "apps/storefront/public/file.svg",
+      "bytes": 391,
+      "lines": 1
+    },
+    {
+      "path": "apps/storefront/public/globe.svg",
+      "bytes": 1035,
+      "lines": 1
+    },
+    {
+      "path": "apps/storefront/public/next.svg",
+      "bytes": 1375,
+      "lines": 1
+    },
+    {
+      "path": "apps/storefront/public/vercel.svg",
+      "bytes": 128,
+      "lines": 1
+    },
+    {
+      "path": "apps/storefront/public/window.svg",
+      "bytes": 385,
+      "lines": 1
+    },
+    {
+      "path": "apps/storefront/README.md",
+      "bytes": 265,
+      "lines": 4
+    },
+    {
+      "path": "apps/storefront/src/app/favicon.ico",
+      "bytes": 15086,
+      "lines": null
+    },
+    {
+      "path": "apps/storefront/src/app/globals.css",
+      "bytes": 93,
+      "lines": 1
+    },
+    {
+      "path": "apps/storefront/src/app/layout.tsx",
+      "bytes": 423,
+      "lines": 18
+    },
+    {
+      "path": "apps/storefront/src/app/page.module.css",
+      "bytes": 2612,
+      "lines": 150
+    },
+    {
+      "path": "apps/storefront/src/app/page.tsx",
+      "bytes": 198,
+      "lines": 9
+    },
+    {
+      "path": "apps/storefront/tsconfig.json",
+      "bytes": 670,
+      "lines": 34
+    },
+    {
+      "path": "changelog-friendly.md",
+      "bytes": 4913,
+      "lines": 51
+    },
+    {
+      "path": "changelog.md",
+      "bytes": 9349,
+      "lines": 86
+    },
+    {
+      "path": "docs/architecture.md",
+      "bytes": 2427,
+      "lines": 22
+    },
+    {
+      "path": "docs/catalog-foundation-migration-review.md",
+      "bytes": 11353,
+      "lines": 74
+    },
+    {
+      "path": "docs/catalog-import-design.md",
+      "bytes": 13146,
+      "lines": 84
+    },
+    {
+      "path": "docs/database-architecture.md",
+      "bytes": 39682,
+      "lines": 224
+    },
+    {
+      "path": "docs/database-deployment.md",
+      "bytes": 7940,
+      "lines": 86
+    },
+    {
+      "path": "docs/database-erd.md",
+      "bytes": 14663,
+      "lines": 358
+    },
+    {
+      "path": "docs/database-implementation-roadmap.md",
+      "bytes": 10313,
+      "lines": 29
+    },
+    {
+      "path": "docs/database-open-questions.md",
+      "bytes": 11890,
+      "lines": 112
+    },
+    {
+      "path": "docs/development-status.md",
+      "bytes": 335,
+      "lines": 3
+    },
+    {
+      "path": "docs/offline-pos.md",
+      "bytes": 1065,
+      "lines": 9
+    },
+    {
+      "path": "docs/references/Twentynine11Prints_Master_Price_List.xlsx",
+      "bytes": 107257,
+      "lines": null
+    },
+    {
+      "path": "infrastructure/README.md",
+      "bytes": 143,
+      "lines": 3
+    },
+    {
+      "path": "package-lock.json",
+      "bytes": 637062,
+      "lines": 18460
+    },
+    {
+      "path": "package.json",
+      "bytes": 1167,
+      "lines": 34
+    },
+    {
+      "path": "packages/shared/package.json",
+      "bytes": 176,
+      "lines": 6
+    },
+    {
+      "path": "packages/shared/README.md",
+      "bytes": 210,
+      "lines": 3
+    },
+    {
+      "path": "README.md",
+      "bytes": 6073,
+      "lines": 61
+    },
+    {
+      "path": "reports/2026-11-08_04-49-16.md",
+      "bytes": 10526,
+      "lines": 184
+    },
+    {
+      "path": "reports/2026-11-08_05-09-32.md",
+      "bytes": 7753,
+      "lines": 79
+    },
+    {
+      "path": "reports/2026-11-08_08-13-27.md",
+      "bytes": 4976,
+      "lines": null
+    },
+    {
+      "path": "reports/2026-11-08_21-24-00.md",
+      "bytes": 7207,
+      "lines": 55
+    },
+    {
+      "path": "reports/2026-11-08_22-50-06.md",
+      "bytes": 9809,
+      "lines": 66
+    },
+    {
+      "path": "reports/2026-11-17_20-44-11.md",
+      "bytes": 5364,
+      "lines": 41
+    },
+    {
+      "path": "status.md",
+      "bytes": 5681,
+      "lines": 47
+    },
+    {
+      "path": "vision.md",
+      "bytes": 5227,
+      "lines": 35
+    }
+  ]
+}

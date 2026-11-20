@@ -1,0 +1,426 @@
+﻿<div class="catalog-page">
+  <div class="page-heading">
+    <div>
+      <p class="eyebrow">PRINT STUDIO / CATALOG</p>
+      <h2>Products &amp; categories</h2>
+      <p>Keep your print collection up to date.</p>
+    </div>
+    @if (ready()) {
+      <button type="button" (click)="refresh()" [disabled]="busy()">Refresh catalog</button>
+    }
+  </div>
+  @if (error()) {
+    <p class="feedback error" role="alert">{{ error() }}</p>
+  }
+  @if (message()) {
+    <p class="feedback" role="status">{{ message() }}</p>
+  }
+  @if (busy()) {
+    <p role="status">Working on your catalog…</p>
+  }
+  @if (!ready() && !busy()) {
+    <p>
+      Sign in with an Owner/Admin account on the <a routerLink="/orders">Orders page</a>, then
+      return here.
+    </p>
+  }
+  @if (ready()) {
+    <nav class="tabs" aria-label="Catalog sections">
+      <button
+        type="button"
+        [attr.aria-pressed]="view() === 'products'"
+        (click)="view.set('products'); auditEntries.set([])"
+      >
+        Products
+      </button>
+      <button
+        type="button"
+        [attr.aria-pressed]="view() === 'categories'"
+        (click)="view.set('categories'); auditEntries.set([])"
+      >
+        Categories
+      </button>
+    </nav>
+    @if (view() === 'products') {
+      <div class="toolbar">
+        <label
+          >Search products<input
+            type="search"
+            [ngModel]="query()"
+            (ngModelChange)="query.set($event)"
+            placeholder="Product name or SKU"
+        /></label>
+        <label
+          >Category<select
+            [ngModel]="categoryFilter()"
+            (ngModelChange)="categoryFilter.set($event)"
+          >
+            <option value="">All categories</option>
+            @for (category of categories(); track category.id) {
+              <option [value]="category.id">{{ category.name }}</option>
+            }
+          </select></label
+        >
+        <button type="button" (click)="addProduct()" [disabled]="busy()">+ Add product</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Category</th>
+              <th>Price / unit</th>
+              <th>Minimum</th>
+              <th>Status</th>
+              <th>Available</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (product of visible(); track product.id) {
+              <tr>
+                <td>
+                  <strong>{{ product.name }}</strong
+                  ><small>{{ product.sku }}</small>
+                </td>
+                <td>{{ product.category.name }}</td>
+                <td>₱{{ product.unitPrice }} / {{ product.sellingUnitLabel }}</td>
+                <td>{{ product.minimumOrderQuantity }}</td>
+                <td>
+                  <span class="badge">{{ product.publicationStatus }}</span>
+                </td>
+                <td>{{ product.isAvailable ? 'Yes' : 'No' }}</td>
+                <td>
+                  <button
+                    type="button"
+                    class="secondary"
+                    (click)="edit(product)"
+                    [disabled]="busy()"
+                  >
+                    View / Edit
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="7">No products match your search.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      @if (editor()) {
+        <section class="editor" aria-labelledby="product-editor">
+          <div class="page-heading">
+            <div>
+              <p class="eyebrow">{{ selected()?.sku || 'AUTOMATIC SKU' }}</p>
+              <h3 id="product-editor">{{ selected() ? 'Product details' : 'Add a product' }}</h3>
+            </div>
+            <button class="secondary" type="button" (click)="editor.set(false)" [disabled]="busy()">
+              Close
+            </button>
+          </div>
+          @if (selected()?.archivedAt) {
+            <p>This product is archived. Existing orders retain their saved details.</p>
+          }
+          <form (ngSubmit)="save()" #productForm="ngForm">
+            <fieldset [disabled]="busy() || !!selected()?.archivedAt">
+              <div class="form-grid">
+                <label
+                  >Product name<input
+                    name="name"
+                    [(ngModel)]="draft.name"
+                    required
+                    maxlength="200"
+                    (blur)="!selected() && !draft.slug ? (draft.slug = slug(draft.name)) : null"
+                /></label>
+                <label
+                  >URL slug<input
+                    name="slug"
+                    [(ngModel)]="draft.slug"
+                    required
+                    pattern="[a-z0-9]+(-[a-z0-9]+)*"
+                    maxlength="200"
+                /></label>
+                <label
+                  >Category<select name="category" [(ngModel)]="draft.categoryId" required>
+                    <option value="">Choose category</option>
+                    @for (category of categories(); track category.id) {
+                      @if (!category.archivedAt) {
+                        <option [value]="category.id">
+                          {{ category.name }}{{ category.isActive ? '' : ' (inactive)' }}
+                        </option>
+                      }
+                    }
+                  </select></label
+                >
+                <label
+                  >Price (PHP)<input
+                    name="unitPrice"
+                    [(ngModel)]="draft.unitPrice"
+                    required
+                    inputmode="decimal"
+                    pattern="(0|[1-9][0-9]{0,13})(\.[0-9]{1,4})?"
+                /></label>
+                <label
+                  >Minimum quantity<input
+                    name="minimum"
+                    type="number"
+                    [(ngModel)]="draft.minimumOrderQuantity"
+                    min="1"
+                    max="2147483647"
+                    step="1"
+                    required
+                /></label>
+                <label
+                  >Selling unit<input
+                    name="unit"
+                    [(ngModel)]="draft.sellingUnitLabel"
+                    maxlength="80"
+                    required
+                /></label>
+                <label
+                  >Publication<select name="publication" [(ngModel)]="draft.publicationStatus">
+                    <option value="DRAFT">Draft</option>
+                    <option value="PUBLISHED">Published</option>
+                  </select></label
+                >
+                <label class="check"
+                  ><input name="available" type="checkbox" [(ngModel)]="draft.isAvailable" />
+                  Available for new requests</label
+                >
+              </div>
+              <label
+                >Description<textarea
+                  name="description"
+                  [(ngModel)]="draft.description"
+                  maxlength="5000"
+                ></textarea>
+              </label>
+              <label
+                >Print specifications<textarea
+                  name="specifications"
+                  [(ngModel)]="draft.specificationText"
+                  maxlength="5000"
+                ></textarea>
+              </label>
+              <h4>Product attributes</h4>
+              <p class="hint">Optional details such as size, finish or material.</p>
+              @for (attribute of draft.attributes; track $index; let i = $index) {
+                <div class="attribute-row">
+                  <label
+                    >Key<input
+                      [name]="'key' + i"
+                      [(ngModel)]="attribute.key"
+                      required
+                      maxlength="80" /></label
+                  ><label
+                    >Label<input
+                      [name]="'label' + i"
+                      [(ngModel)]="attribute.label"
+                      required
+                      maxlength="200" /></label
+                  ><label
+                    >Value<input
+                      [name]="'value' + i"
+                      [(ngModel)]="attribute.value"
+                      required
+                      maxlength="2000" /></label
+                  ><label
+                    >Unit<input
+                      [name]="'unit' + i"
+                      [(ngModel)]="attribute.unit"
+                      maxlength="80" /></label
+                  ><button type="button" class="secondary" (click)="removeAttribute(i)">
+                    Remove
+                  </button>
+                </div>
+              }
+              <div class="actions">
+                <button
+                  type="button"
+                  class="secondary"
+                  (click)="addAttribute()"
+                  [disabled]="draft.attributes.length >= 30"
+                >
+                  Add attribute</button
+                ><button type="submit" [disabled]="productForm.invalid">Save product</button>
+              </div>
+            </fieldset>
+          </form>
+          @if (selected(); as product) {
+            <div class="actions">
+              <button
+                type="button"
+                class="secondary"
+                (click)="audit('products', product.id)"
+                [disabled]="busy()"
+              >
+                View catalog history
+              </button>
+              @if (!product.archivedAt) {
+                <button type="button" class="danger" (click)="archive()" [disabled]="busy()">
+                  Archive product
+                </button>
+              }
+            </div>
+            <h4>Product images</h4>
+            <p class="hint">
+              Save product changes before managing images. PNG or JPEG, up to 5 MB each. The first
+              active image is used on the storefront.
+            </p>
+            <div class="image-grid">
+              @for (image of product.images; track image.id) {
+                <figure>
+                  <img [src]="imageUrl(image.id)" [alt]="image.altText" />
+                  <figcaption>{{ image.altText }}</figcaption>
+                  @if (!product.archivedAt) {
+                    <button
+                      type="button"
+                      class="secondary"
+                      (click)="removeImage(image.id)"
+                      [disabled]="busy()"
+                    >
+                      Remove image
+                    </button>
+                  }
+                </figure>
+              }
+            </div>
+            @if (!product.archivedAt && product.images.length < 5) {
+              <div class="upload-row">
+                <label
+                  >Image<input
+                    #imageFile
+                    type="file"
+                    accept="image/png,image/jpeg"
+                    [disabled]="busy()" /></label
+                ><label
+                  >Image description<input
+                    #imageAlt
+                    required
+                    maxlength="200"
+                    placeholder="Describe this product image"
+                    [disabled]="busy()" /></label
+                ><button type="button" (click)="upload(imageFile, imageAlt)" [disabled]="busy()">
+                  Upload image
+                </button>
+              </div>
+            }
+          }
+        </section>
+      }
+    } @else {
+      <div class="category-layout">
+        <section class="editor">
+          <div class="page-heading">
+            <h3>Categories</h3>
+            <button type="button" (click)="newCategory()" [disabled]="busy()">
+              + Add category
+            </button>
+          </div>
+          @for (category of categories(); track category.id) {
+            <button
+              type="button"
+              class="category-entry"
+              (click)="editCategory(category)"
+              [disabled]="busy()"
+            >
+              <strong>{{ category.name }}</strong
+              ><span>{{
+                category.archivedAt ? 'Archived' : category.isActive ? 'Active' : 'Inactive'
+              }}</span>
+            </button>
+          } @empty {
+            <p>No categories yet.</p>
+          }
+        </section>
+        <section class="editor">
+          <h3>{{ selectedCategory() ? 'Category details' : 'Add a category' }}</h3>
+          <form (ngSubmit)="saveCategory()" #categoryForm="ngForm">
+            <fieldset [disabled]="busy() || !!selectedCategory()?.archivedAt">
+              <label
+                >Name<input
+                  name="categoryName"
+                  [(ngModel)]="categoryDraft.name"
+                  required
+                  maxlength="200"
+                  (blur)="
+                    !selectedCategory() && !categoryDraft.slug
+                      ? (categoryDraft.slug = slug(categoryDraft.name))
+                      : null
+                  "
+              /></label>
+              <label
+                >URL slug<input
+                  name="categorySlug"
+                  [(ngModel)]="categoryDraft.slug"
+                  required
+                  pattern="[a-z0-9]+(-[a-z0-9]+)*"
+                  maxlength="200"
+              /></label>
+              <label
+                >Description<textarea
+                  name="categoryDescription"
+                  [(ngModel)]="categoryDraft.description"
+                  maxlength="5000"
+                ></textarea>
+              </label>
+              <label
+                >Sort order<input
+                  name="sortOrder"
+                  type="number"
+                  [(ngModel)]="categoryDraft.sortOrder"
+                  required
+                  min="0"
+                  max="2147483647"
+                  step="1"
+              /></label>
+              <label class="check"
+                ><input name="active" type="checkbox" [(ngModel)]="categoryDraft.isActive" /> Active
+                in the storefront</label
+              >
+              <button type="submit" [disabled]="categoryForm.invalid">Save category</button>
+            </fieldset>
+          </form>
+          @if (selectedCategory(); as category) {
+            <div class="actions">
+              <button
+                type="button"
+                class="secondary"
+                (click)="audit('categories', category.id)"
+                [disabled]="busy()"
+              >
+                View catalog history
+              </button>
+              @if (!category.archivedAt) {
+                <button
+                  type="button"
+                  class="danger"
+                  (click)="archiveCategory()"
+                  [disabled]="busy()"
+                >
+                  Archive category
+                </button>
+              }
+            </div>
+          }
+        </section>
+      </div>
+    }
+    @if (auditEntries().length) {
+      <section class="editor" aria-labelledby="catalog-history">
+        <h3 id="catalog-history">Catalog history</h3>
+        <ol>
+          @for (entry of auditEntries(); track entry.id) {
+            <li>
+              {{ entry.action }} · {{ entry.staffUser.displayName }} ({{
+                entry.staffUser.username
+              }}) · {{ entry.occurredAt | date: 'medium' }}
+            </li>
+          }
+        </ol>
+      </section>
+    }
+  }
+</div>

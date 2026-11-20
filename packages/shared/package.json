@@ -1,0 +1,6 @@
+{
+  "name": "@twenty9-eleven/shared",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Reserved for framework-neutral shared contracts; no business contracts yet."
+}

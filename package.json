@@ -1,0 +1,35 @@
+{
+  "name": "twenty9-eleven",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=26.13.0 <27",
+    "npm": ">=11"
+  },
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "dev:storefront": "npm run dev --workspace=@twenty9-eleven/storefront",
+    "dev:admin": "npm start --workspace=@twenty9-eleven/admin",
+    "dev:pos": "npm start --workspace=@twenty9-eleven/pos",
+    "dev:api": "npm run start:dev --workspace=@twenty9-eleven/api",
+    "build": "npm run db:generate && npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "db:generate": "npm run db:generate --workspace=@twenty9-eleven/api",
+    "db:migrate": "npm run db:migrate --workspace=@twenty9-eleven/api --",
+    "db:studio": "npm run db:studio --workspace=@twenty9-eleven/api --",
+    "db:check": "npm run db:check --workspace=@twenty9-eleven/api"
+  },
+  "allowScripts": {
+    "prisma@7.10.1": true,
+    "@prisma/engines@7.10.1": true,
+    "esbuild@0.28.2": true,
+    "@parcel/watcher@2.6.0": true,
+    "lmdb@3.5.6": true,
+    "msgpackr-extract@3.0.7": true
+  }
+}

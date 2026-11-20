@@ -1,0 +1,251 @@
+﻿<header class="pos-header">
+  <a class="brand" href="/">TWENTY9<span>ELEVEN.</span></a>
+  <div>
+    <p class="eyebrow">WALK-IN ORDERS</p>
+    <h1>TWENTY9 ELEVEN — Point of Sale</h1>
+  </div>
+  @if (user(); as staff) {
+    <div class="staff">
+      <strong>{{ staff.displayName }}</strong
+      ><span>{{
+        staff.role === 'OWNER_ADMIN'
+          ? 'Owner/Admin'
+          : staff.role === 'CASHIER'
+            ? 'Cashier'
+            : 'Production Staff'
+      }}</span
+      ><button type="button" class="secondary" (click)="logout()" [disabled]="busy()">
+        Sign out
+      </button>
+    </div>
+  }
+</header>
+<main>
+  @if (error()) {
+    <p role="alert" class="error">{{ error() }}</p>
+  }
+  @if (message()) {
+    <p role="status" class="notice">{{ message() }}</p>
+  }
+  @if (!user()) {
+    <section class="login">
+      <p class="eyebrow">WELCOME TO THE COUNTER</p>
+      <h2>Staff sign in</h2>
+      <p>Use your individual Cashier or Owner/Admin account.</p>
+      <form (ngSubmit)="login(username.value, password)" #loginForm="ngForm">
+        <label
+          >Username<input
+            id="pos-username"
+            #username
+            name="username"
+            ngModel
+            autocomplete="username"
+            required
+            maxlength="40"
+            [disabled]="busy()" /></label
+        ><label
+          >Password<input
+            id="pos-password"
+            #password
+            name="password"
+            type="password"
+            ngModel
+            autocomplete="current-password"
+            required
+            [disabled]="busy()" /></label
+        ><button [disabled]="busy() || loginForm.invalid">
+          {{ busy() ? 'Signing in…' : 'Sign in' }}
+        </button>
+      </form>
+    </section>
+  } @else if (!allowed()) {
+    <section class="login">
+      <h2>Cashier access required</h2>
+      <p>
+        Your role cannot create walk-in orders. Sign out to use a Cashier or Owner/Admin account.
+      </p>
+    </section>
+  } @else if (receipt(); as saved) {
+    <section class="saved" aria-labelledby="saved-heading">
+      <p class="eyebrow">WALK-IN REQUEST SAVED</p>
+      <h2 id="saved-heading">Pending Review</h2>
+      <p>
+        This request will follow staff review, customer confirmation and manual payment
+        verification.
+      </p>
+      <dl>
+        <dt>Order reference</dt>
+        <dd>{{ saved.reference }}</dd>
+        <dt>Private customer access code</dt>
+        <dd>{{ saved.accessCode }}</dd>
+      </dl>
+      <p>
+        Give the reference and private code to the customer. Save them before starting another
+        order.
+      </p>
+      <ul>
+        @for (item of saved.items; track item.productSku) {
+          <li>
+            {{ item.productName }} · {{ item.quantity }} {{ item.sellingUnit }} ·
+            {{ item.unitPrice }} PHP per {{ item.sellingUnit }}
+          </li>
+        }
+      </ul>
+      <p class="saved-total">Order total {{ money(priceUnitsForReceipt(saved.orderTotal)) }}</p>
+      <p class="hint">
+        Stock checking is manual. At least 50% verified payment and final stock review are required
+        for acceptance. Full verified payment is required for release.
+      </p>
+      <div class="actions">
+        <button type="button" (click)="nextOrder()">Start another order</button
+        ><a href="http://localhost:3000/#tracking" target="_blank" rel="noopener"
+          >Open customer tracking ↗</a
+        >
+      </div>
+    </section>
+  } @else {
+    <div class="pos-layout">
+      <section class="catalog" aria-labelledby="catalog-heading">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">THE PRINT COLLECTION</p>
+            <h2 id="catalog-heading">Find a product</h2>
+          </div>
+          <button type="button" class="secondary" (click)="refresh()" [disabled]="busy()">
+            Refresh catalog
+          </button>
+        </div>
+        <div class="filters">
+          <label
+            >Search products<input
+              type="search"
+              [ngModel]="query()"
+              (ngModelChange)="query.set($event)"
+              placeholder="Name or SKU"
+              [disabled]="busy()" /></label
+          ><label
+            >Category<select
+              [ngModel]="category()"
+              (ngModelChange)="category.set($event)"
+              [disabled]="busy()"
+            >
+              <option value="">All categories</option>
+              @for (name of categories(); track name) {
+                <option [value]="name">{{ name }}</option>
+              }
+            </select></label
+          >
+        </div>
+        @if (busy() && !products().length) {
+          <p role="status">Loading catalog…</p>
+        }
+        <div class="product-grid">
+          @for (product of visible(); track product.id) {
+            <article class="product">
+              <div class="product-art">
+                @if (images()[product.id]; as image) {
+                  <img [src]="image.url" [alt]="image.alt" (error)="hideImage(product.id)" />
+                } @else {
+                  <div class="placeholder" aria-hidden="true">
+                    <span>your idea,<br /><em>in print.</em></span
+                    ><small>TWENTY9 ELEVEN</small>
+                  </div>
+                }
+              </div>
+              <div class="product-copy">
+                <p class="category-name">{{ product.category.name }}</p>
+                <h3>{{ product.name }}</h3>
+                <small>{{ product.sku }}</small>
+                @if (product.specificationText) {
+                  <p class="specification">{{ product.specificationText }}</p>
+                }
+                <strong>{{ unitPrice(product) }} / {{ product.sellingUnitLabel }}</strong>
+                <p class="hint">
+                  Minimum {{ product.minimumOrderQuantity }} {{ product.sellingUnitLabel }}
+                </p>
+                <button type="button" (click)="add(product)" [disabled]="busy()">
+                  Add to order ↗
+                </button>
+              </div>
+            </article>
+          } @empty {
+            @if (!busy()) {
+              <p class="empty">No products match. Try another search or refresh the catalog.</p>
+            }
+          }
+        </div>
+      </section>
+      <aside class="order-panel" aria-labelledby="order-heading">
+        <p class="eyebrow">AT THE COUNTER</p>
+        <h2 id="order-heading">Current order</h2>
+        <form (ngSubmit)="submit()" #orderForm="ngForm">
+          <fieldset [disabled]="busy()">
+            @for (line of cart(); track line.productId) {
+              <article class="cart-line">
+                <div>
+                  <h3>{{ product(line.productId)?.name || 'Unavailable product' }}</h3>
+                  <p class="hint">
+                    Minimum {{ product(line.productId)?.minimumOrderQuantity || 1 }}
+                    {{ product(line.productId)?.sellingUnitLabel }}
+                  </p>
+                </div>
+                <label
+                  >Quantity<input
+                    type="number"
+                    [name]="'quantity-' + line.productId"
+                    [ngModel]="line.quantity"
+                    (ngModelChange)="quantity(line.productId, $event)"
+                    [min]="product(line.productId)?.minimumOrderQuantity || 1"
+                    max="2147483647"
+                    step="1"
+                    required
+                /></label>
+                @if (validLine(line)) {
+                  <strong>{{ money(subtotal(line)) }}</strong>
+                } @else {
+                  <p role="alert" class="line-error">
+                    Check availability and minimum whole-number quantity.
+                  </p>
+                }
+                <button type="button" class="remove" (click)="remove(line.productId)">
+                  Remove
+                </button>
+              </article>
+            } @empty {
+              <p class="empty">Choose a product to start a walk-in request.</p>
+            }
+            <div class="total">
+              <span>Estimated total</span><strong>{{ invalid() ? '—' : money(total()) }}</strong>
+            </div>
+            <label
+              >Customer name<input
+                id="customer-name"
+                name="customerName"
+                [(ngModel)]="customerName"
+                required
+                maxlength="100"
+                autocomplete="name"
+            /></label>
+            <label
+              >Contact number<input
+                id="customer-phone"
+                name="contactPhone"
+                type="tel"
+                [(ngModel)]="contactPhone"
+                required
+                maxlength="24"
+                autocomplete="tel"
+            /></label>
+            <p class="hint">
+              Requests start Pending Review. Stock checking is manual. Payment collection follows in
+              a later POS phase.
+            </p>
+            <button type="submit" class="submit-order" [disabled]="invalid() || orderForm.invalid">
+              {{ busy() ? 'Saving request…' : 'Submit walk-in order' }}
+            </button>
+          </fieldset>
+        </form>
+      </aside>
+    </div>
+  }
+</main>

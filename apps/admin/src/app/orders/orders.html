@@ -1,0 +1,386 @@
+﻿<main>
+  <h2>Orders</h2>
+  @if (!user()) {
+    <form (submit)="$event.preventDefault(); login(username.value, password)" class="panel">
+      <label for="staff-username">Staff username</label>
+      <input #username id="staff-username" autocomplete="username" required maxlength="40" />
+      <label for="staff-password">Password</label>
+      <input
+        #password
+        id="staff-password"
+        type="password"
+        autocomplete="current-password"
+        required
+      />
+      <button [disabled]="busy()">Sign in</button>
+    </form>
+  } @else {
+    <div class="actions">
+      @if (user(); as staff) {
+        <p>{{ staff.displayName }} · {{ roleLabels[staff.role] }}</p>
+      }
+      <button type="button" (click)="logout()" [disabled]="busy()">Sign out</button>
+    </div>
+    @if (user()?.role === 'CASHIER') {
+      <p>
+        Cashier access is reserved for POS and walk-in workflows. Online order administration is
+        restricted.
+      </p>
+      <p><a href="http://localhost:4201">Open Point of Sale ↗</a></p>
+    } @else {
+      @if (owner()) {
+        <details class="panel">
+          <summary>Staff accounts</summary>
+          <ul>
+            @for (account of accounts(); track account.id) {
+              <li>
+                {{ account.displayName }} ({{ account.username }}) ·
+                {{ roleLabels[account.role] }} · {{ account.active ? 'Active' : 'Inactive' }}
+                @if (account.id !== user()?.id) {
+                  <button type="button" (click)="toggleAccount(account)" [disabled]="busy()">
+                    {{ account.active ? 'Deactivate' : 'Reactivate' }}
+                  </button>
+                }
+              </li>
+            }
+          </ul>
+          <form
+            (submit)="
+              $event.preventDefault();
+              addAccount(newUsername.value, staffName.value, newPassword, newRole.value)
+            "
+          >
+            <label>Username <input #newUsername required maxlength="40" /></label>
+            <label>Display name <input #staffName required maxlength="80" /></label>
+            <label
+              >Password
+              <input
+                #newPassword
+                type="password"
+                autocomplete="new-password"
+                required
+                minlength="12"
+            /></label>
+            <label
+              >Role
+              <select #newRole required>
+                <option value="CASHIER">Cashier</option>
+                <option value="PRODUCTION">Production Staff</option>
+                <option value="OWNER_ADMIN">Owner/Admin</option>
+              </select>
+            </label>
+            <button [disabled]="busy()">Create staff account</button>
+          </form>
+        </details>
+      }
+      <div class="actions">
+        <button type="button" (click)="refresh()" [disabled]="busy()">Refresh orders</button>
+      </div>
+      <div class="workspace">
+        <section class="panel" aria-labelledby="submitted">
+          <h3 id="submitted">{{ owner() ? 'Submitted orders' : 'Assigned production orders' }}</h3>
+          <ul>
+            @for (entry of orders(); track entry.reference) {
+              <li>
+                <button
+                  type="button"
+                  class="entry"
+                  (click)="open(entry.reference)"
+                  [disabled]="busy()"
+                  [attr.aria-pressed]="order()?.reference === entry.reference"
+                >
+                  @if (entry.customerName) {
+                    <strong>{{ entry.customerName }}</strong>
+                  }
+                  <span>{{ labels[entry.status] }}</span>
+                  <small>{{ entry.reference }}</small>
+                </button>
+              </li>
+            } @empty {
+              <li>
+                {{
+                  owner()
+                    ? 'No orders have been submitted.'
+                    : 'No production orders are assigned to you.'
+                }}
+              </li>
+            }
+          </ul>
+        </section>
+        @if (order(); as selected) {
+          <section class="panel" aria-labelledby="order-details">
+            <h3 id="order-details">Order details</h3>
+            <dl>
+              <dt>Order reference</dt>
+              <dd>{{ selected.reference }}</dd>
+              @if (owner()) {
+                <dt>Customer</dt>
+                <dd>{{ selected.customerName }}</dd>
+                <dt>Contact number</dt>
+                <dd>{{ selected.contactPhone }}</dd>
+              }
+              <dt>Submitted</dt>
+              <dd>{{ selected.createdAt | date: 'medium' }}</dd>
+              <dt>Status</dt>
+              <dd role="status">{{ labels[selected.status] }}</dd>
+            </dl>
+            <h4>Products</h4>
+            <ul>
+              @for (item of selected.items; track item.id) {
+                <li>
+                  {{ item.productName }} ({{ item.productSku }}) · {{ item.quantity }}
+                  {{ item.sellingUnit }}
+                  @if (item.unitPrice; as price) {
+                    · {{ formatMoney(price) }} per {{ item.sellingUnit }}
+                  }
+                </li>
+              }
+            </ul>
+            @if (selected.orderTotal; as total) {
+              <p>
+                <strong>Order total {{ formatMoney(total) }}</strong>
+              </p>
+            }
+            @if (
+              owner() &&
+              (selected.status === 'ACCEPTED' ||
+                selected.status === 'PROCESSING' ||
+                selected.status === 'READY')
+            ) {
+              <form (submit)="$event.preventDefault(); assignStaff(assignment.value)">
+                <label for="production-assignment">Production Staff assignment</label>
+                <select
+                  #assignment
+                  id="production-assignment"
+                  [value]="selected.productionStaffId ?? ''"
+                >
+                  <option value="">Unassigned</option>
+                  @for (account of accounts(); track account.id) {
+                    @if (
+                      account.role === 'PRODUCTION' &&
+                      (account.active || account.id === selected.productionStaffId)
+                    ) {
+                      <option [value]="account.id">
+                        {{ account.displayName }}{{ account.active ? '' : ' (inactive)' }}
+                      </option>
+                    }
+                  }
+                </select>
+                <button [disabled]="busy()">Save assignment</button>
+              </form>
+            }
+            @if (selected.status === 'PENDING_REVIEW') {
+              <button type="button" (click)="update('review')" [disabled]="busy()">
+                Review Order
+              </button>
+            } @else if (selected.status === 'IN_REVIEW') {
+              <p>
+                Stock check is manual for this demo. Confirm availability with staff before
+                continuing.
+              </p>
+              <button type="button" (click)="update('available')" [disabled]="busy()">
+                Mark Available for Customer Confirmation
+              </button>
+              <form (submit)="$event.preventDefault(); update('decline', reason.value)">
+                <label for="reason">Decline reason</label>
+                <textarea #reason id="reason" rows="3" required maxlength="500"></textarea>
+                <button class="decline" [disabled]="busy()">Decline Order</button>
+              </form>
+            } @else if (selected.status === 'DECLINED') {
+              <p><strong>Decline reason</strong> {{ selected.declineReason }}</p>
+            }
+            @if (
+              selected.status === 'ACCEPTED' ||
+              selected.status === 'PROCESSING' ||
+              selected.status === 'READY' ||
+              selected.status === 'COMPLETED'
+            ) {
+              <section class="conversation" aria-labelledby="production-heading">
+                <h4 id="production-heading">Production progress</h4>
+                <div class="actions">
+                  @if (selected.status === 'ACCEPTED') {
+                    <button type="button" (click)="advance('start')" [disabled]="busy()">
+                      Start Processing
+                    </button>
+                  } @else if (selected.status === 'PROCESSING') {
+                    <button type="button" (click)="advance('ready')" [disabled]="busy()">
+                      Mark Ready
+                    </button>
+                  } @else if (selected.status === 'READY' && owner()) {
+                    <button
+                      type="button"
+                      (click)="advance('complete')"
+                      [disabled]="busy() || !conversationData()?.paidInFull"
+                    >
+                      Release and Complete
+                    </button>
+                  }
+                  <button type="button" (click)="progress()" [disabled]="busy()">
+                    {{ milestones() ? 'Refresh progress' : 'View progress' }}
+                  </button>
+                </div>
+                @if (selected.status === 'READY' && owner() && !conversationData()?.paidInFull) {
+                  <p>
+                    Full verified payment is required before release. Open or refresh the
+                    conversation to check the balance.
+                  </p>
+                }
+                @if (milestones(); as history) {
+                  <ol>
+                    @for (entry of history; track entry.status) {
+                      <li>
+                        <strong>{{ labels[entry.status] }}</strong>
+                        {{ entry.occurredAt | date: 'medium' }}
+                      </li>
+                    }
+                  </ol>
+                }
+              </section>
+            }
+            @if (owner()) {
+              <section class="conversation" aria-labelledby="order-audit">
+                <h4 id="order-audit">Staff action history</h4>
+                <button type="button" (click)="audit()" [disabled]="busy()">
+                  View staff actions
+                </button>
+                @if (auditEntries(); as entries) {
+                  <ol>
+                    @for (entry of entries; track entry.id) {
+                      <li>
+                        {{ entry.action.replaceAll('_', ' ') }} · {{ entry.displayName }} ({{
+                          entry.username
+                        }}) · {{ entry.occurredAt | date: 'medium' }}
+                      </li>
+                    } @empty {
+                      <li>No staff actions have been recorded for this order.</li>
+                    }
+                  </ol>
+                }
+              </section>
+              <section class="conversation" aria-labelledby="order-chat">
+                <h4 id="order-chat">Order chat and payment evidence</h4>
+                <button type="button" (click)="conversation()" [disabled]="busy()">
+                  {{ conversationData() ? 'Refresh conversation' : 'Open conversation' }}
+                </button>
+                @if (conversationData(); as chat) {
+                  <p>
+                    Order total {{ formatMoney(chat.orderTotal) }} · Minimum 50% deposit
+                    {{ formatMoney(chat.minimumDeposit) }}
+                  </p>
+                  <p>
+                    Verified {{ formatMoney(chat.verifiedTotal) }} · Balance
+                    {{ formatMoney(chat.remainingBalance) }}
+                  </p>
+                  @if (chat.paidInFull) {
+                    <p>Full payment verified.</p>
+                  } @else {
+                    <p>Full verified payment is required before release.</p>
+                  }
+                  <ul>
+                    @for (message of chat.messages; track message.id) {
+                      <li>
+                        <strong>{{ message.sender === 'ADMIN' ? 'Admin' : 'Customer' }}</strong>
+                        {{ message.text }}
+                      </li>
+                    }
+                  </ul>
+                  <form (submit)="$event.preventDefault(); reply(replyText)">
+                    <label for="reply">Reply to customer</label>
+                    <textarea #replyText id="reply" required maxlength="2000"></textarea>
+                    <button [disabled]="busy()">Send reply</button>
+                  </form>
+                  <h4>Payment receipts</h4>
+                  <p>
+                    Compare the receipt with actual funds received in the external account before
+                    approving.
+                  </p>
+                  <ul>
+                    @for (receipt of chat.receipts; track receipt.id) {
+                      <li class="receipt-review">
+                        <button type="button" (click)="viewReceipt(receipt.id)" [disabled]="busy()">
+                          View receipt
+                        </button>
+                        <strong>{{ receiptLabels[receipt.status] }}</strong>
+                        @if (receipt.amount) {
+                          <span>{{ formatMoney(receipt.amount) }}</span>
+                        }
+                        @if (receipt.rejectionReason) {
+                          <p>{{ receipt.rejectionReason }}</p>
+                        }
+                        @if (receipt.status === 'PENDING_VERIFICATION') {
+                          <form
+                            (submit)="
+                              $event.preventDefault();
+                              verifyReceipt(receipt.id, {
+                                decision: 'approve',
+                                amount: amount.value,
+                                paymentReference: paymentRef.value,
+                                fundsReceived: received.checked,
+                              })
+                            "
+                          >
+                            <label
+                              >PHP actually received <input #amount inputmode="decimal" required
+                            /></label>
+                            <label
+                              >External payment reference
+                              <input #paymentRef required maxlength="80"
+                            /></label>
+                            <label
+                              ><input #received type="checkbox" required /> I manually verified
+                              actual funds received.</label
+                            >
+                            <button [disabled]="busy()">Approve receipt</button>
+                          </form>
+                          <form
+                            (submit)="
+                              $event.preventDefault();
+                              verifyReceipt(receipt.id, {
+                                decision: 'reject',
+                                reason: rejectReason.value,
+                              })
+                            "
+                          >
+                            <label
+                              >Rejection reason
+                              <textarea #rejectReason required maxlength="500"></textarea>
+                            </label>
+                            <button class="decline" [disabled]="busy()">Reject receipt</button>
+                          </form>
+                        }
+                      </li>
+                    }
+                  </ul>
+                  @if (receiptUrl()) {
+                    <p>
+                      <a [href]="receiptUrl()" target="_blank" rel="noreferrer"
+                        >Open receipt image</a
+                      >
+                    </p>
+                  }
+                  @if (chat.status === 'AWAITING_PAYMENT') {
+                    <p>Final stock check is manual for this MVP.</p>
+                    @if (chat.depositMet) {
+                      <form (submit)="$event.preventDefault(); accept(stock.checked)">
+                        <label
+                          ><input #stock type="checkbox" required /> I completed the final manual
+                          stock check.</label
+                        >
+                        <button [disabled]="busy()">Accept order</button>
+                      </form>
+                    } @else {
+                      <p>The minimum verified deposit is required before acceptance.</p>
+                    }
+                  }
+                }
+              </section>
+            }
+          </section>
+        }
+      </div>
+    }
+  }
+  @if (error()) {
+    <p role="alert">{{ error() }}</p>
+  }
+</main>
